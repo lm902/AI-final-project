@@ -1,8 +1,9 @@
 # ── Datasets (too large for Git) ─────────────────────────────
-data/
-*.zip
-*.tar
-*.tar.gz
+# Igonre everything in data
+data/*
+
+# But allow .txt files
+!data/*.txt
 
 # ── Model weights & checkpoints ──────────────────────────────
 weights/

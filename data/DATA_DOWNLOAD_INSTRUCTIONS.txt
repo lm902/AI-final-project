@@ -1,0 +1,164 @@
+==============================================================
+  COMP 9130 Capstone — Dataset Download Instructions
+  Military Camouflage Object Detection
+==============================================================
+
+Datasets are NOT included in this repository due to file size.
+Follow the steps below to download and set up all three datasets
+before running any notebooks or scripts.
+
+Target folder structure after setup:
+
+  AI-final-project/
+  └── data/
+      ├── COD10K-v3/
+      │   ├── Train/
+      │   │   ├── Image/          ← 6,000 training images
+      │   │   └── GT_Object/      ← 6,000 binary masks
+      │   └── Test/
+      │       ├── Image/          ← 4,000 test images
+      │       └── GT_Object/      ← 4,000 binary masks
+      ├── dataset-splitM/         ← ACD1K
+      │   ├── Training/
+      │   │   ├── images/         ← 748 training images
+      │   │   └── GT/             ← 748 binary masks
+      │   └── Testing/
+      │       ├── images/         ← 330 test images
+      │       └── GT/             ← 330 binary masks
+      └── CAMO-V.1.0-CVIU2019/
+          ├── Images/
+          │   ├── Train/          ← 1,000 training images
+          │   └── Test/           ← 250 test images
+          └── GT/                 ← 1,250 binary masks (all splits)
+
+--------------------------------------------------------------
+DATASET 1 — COD10K  (10,000 images)
+--------------------------------------------------------------
+
+Source  : Kaggle
+URL     : https://www.kaggle.com/datasets/ivanomelchenkoim11/cod10k-dataset
+License : Non-commercial academic use only
+
+Steps:
+  1. Log in to Kaggle (create a free account if needed).
+  2. Go to the URL above and click "Download".
+  3. Extract the zip file.
+  4. Rename or move the extracted folder so that it matches:
+       data/COD10K-v3/
+  5. Confirm the following folders exist:
+       data/COD10K-v3/Train/Image/
+       data/COD10K-v3/Train/GT_Object/
+       data/COD10K-v3/Test/Image/
+       data/COD10K-v3/Test/GT_Object/
+
+  NOTE: Only Image/ and GT_Object/ are needed.
+  You can delete GT_Instance/, GT_Edge/, and the .json files
+  to save disk space.
+
+--------------------------------------------------------------
+DATASET 2 — ACD1K  (1,078 images)
+--------------------------------------------------------------
+
+Source  : Kaggle
+URL     : https://www.kaggle.com/datasets/aalihhiader/military-camouflage-soldiers-dataset-mcs1k
+License : Academic research use only
+Paper   : Haider et al., Scientific Reports, 2025
+          DOI: 10.1038/s41598-025-18886-y
+
+Steps:
+  1. Log in to Kaggle.
+  2. Go to the URL above and click "Download".
+  3. Extract the zip file. The folder will be named dataset-splitM.
+  4. Move it so that it matches:
+       data/dataset-splitM/
+  5. Confirm the following folders exist:
+       data/dataset-splitM/Training/images/
+       data/dataset-splitM/Training/GT/
+       data/dataset-splitM/Testing/images/
+       data/dataset-splitM/Testing/GT/
+
+--------------------------------------------------------------
+DATASET 3 — CAMO  (1,250 images)
+--------------------------------------------------------------
+
+Source  : Official project page
+URL     : https://sites.google.com/view/ltnghia/research/camo
+License : CC BY-NC-SA 4.0 (non-commercial use only)
+Paper   : Le et al., Computer Vision and Image Understanding, 2019
+          DOI: 10.1016/j.cviu.2019.04.006
+
+Steps:
+  1. Go to the URL above.
+  2. Download CAMO-V.1.0.zip (NOT CAMO-COCO-V.1.0.zip).
+  3. Extract the zip file.
+  4. Move it so that it matches:
+       data/CAMO-V.1.0-CVIU2019/
+  5. Confirm the following folders exist:
+       data/CAMO-V.1.0-CVIU2019/Images/Train/
+       data/CAMO-V.1.0-CVIU2019/Images/Test/
+       data/CAMO-V.1.0-CVIU2019/GT/
+
+  NOTE: The Overlaid_Mask/ folder is not needed and can be deleted.
+
+--------------------------------------------------------------
+VERIFY YOUR SETUP
+--------------------------------------------------------------
+
+After downloading all three datasets, run the following command
+from the project root to verify all paths are correct:
+
+  python src/dataset.py data/
+
+Expected output:
+  [COD10K] Loaded 6000 images from data/COD10K-v3/Train/Image
+  [ACD1K]  Loaded 748 images from data/dataset-splitM/Training/images
+  [CAMO]   Loaded 1000 images from data/CAMO-V.1.0-CVIU2019/Images/Train
+  ✅ COD10K condition OK
+  ✅ ACD1K  condition OK
+  ✅ JOINT  condition OK
+
+--------------------------------------------------------------
+DOWNLOADING DIRECTLY TO GOOGLE COLAB
+--------------------------------------------------------------
+
+If you are using Google Colab, you can download datasets directly
+using the Kaggle API. Add the following cells to your notebook:
+
+  # Step 1 — Upload your kaggle.json API token
+  from google.colab import files
+  files.upload()  # Upload kaggle.json from your local machine
+
+  # Step 2 — Configure Kaggle credentials
+  import os
+  os.makedirs('/root/.config/kaggle', exist_ok=True)
+  os.rename('kaggle.json', '/root/.config/kaggle/kaggle.json')
+  os.chmod('/root/.config/kaggle/kaggle.json', 0o600)
+
+  # Step 3 — Download COD10K
+  !kaggle datasets download -d ivanomelchenkoim11/cod10k-dataset \
+    -p /content/drive/MyDrive/Colab\ Notebooks/AI-final-project/data/
+
+  # Step 4 — Download ACD1K
+  !kaggle datasets download -d aalihhiader/military-camouflage-soldiers-dataset-mcs1k \
+    -p /content/drive/MyDrive/Colab\ Notebooks/AI-final-project/data/
+
+  # Step 5 — Unzip
+  !unzip -q .../cod10k-dataset.zip -d .../COD10K-v3/
+  !unzip -q .../military-camouflage-soldiers-dataset-mcs1k.zip -d .../
+
+  To get your kaggle.json:
+    1. Go to https://kaggle.com/me/account
+    2. Scroll to the "API" section
+    3. Click "Create New API Token"
+    4. This downloads kaggle.json to your local machine
+
+--------------------------------------------------------------
+DISK SPACE REQUIREMENTS
+--------------------------------------------------------------
+
+  COD10K  (Image + GT_Object only) : ~1.2 GB
+  ACD1K                            : ~350 MB
+  CAMO                             : ~200 MB
+  Total                            : ~1.75 GB
+
+==============================================================
