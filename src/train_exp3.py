@@ -110,25 +110,26 @@ def forward_pass(model, images, masks, input_size=512):
 # Train / validation loops
 # ──────────────────────────────────────────────────────────────────────────────
 
-def run_epoch(model, loader, optimizer, device, train=True):
+def run_epoch(model, loader, optimizer, device, train=True, accum_steps=1):
     model.train() if train else model.eval()
-
     total_loss = 0.0
     all_miou, all_f1, all_mae = [], [], []
 
     ctx = torch.enable_grad() if train else torch.no_grad()
     with ctx:
-        for batch in loader:
+        for i, batch in enumerate(loader):
             images = batch['image'].to(device)
             masks  = batch['mask'].to(device)
 
             loss, probs = forward_pass(model, images, masks)
 
             if train:
-                optimizer.zero_grad()
+                loss = loss / accum_steps
                 loss.backward()
-                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-                optimizer.step()
+                if (i + 1) % accum_steps == 0:
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                    optimizer.step()
+                    optimizer.zero_grad()
 
             total_loss += loss.item()
             m = compute_metrics(probs.detach(), masks)
@@ -137,12 +138,8 @@ def run_epoch(model, loader, optimizer, device, train=True):
             all_mae.append(m['MAE'])
 
     n = len(loader)
-    return {
-        'loss': total_loss / n,
-        'mIoU': np.mean(all_miou),
-        'F1':   np.mean(all_f1),
-        'MAE':  np.mean(all_mae),
-    }
+    return {'loss': total_loss/n, 'mIoU': np.mean(all_miou),
+            'F1': np.mean(all_f1), 'MAE': np.mean(all_mae)}
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -222,9 +219,10 @@ def train(args):
     history        = []
 
     for epoch in range(1, args.epochs + 1):
-        train_m = run_epoch(model, train_loader, optimizer, device, train=True)
-        val_m   = run_epoch(model, val_loader,   optimizer, device, train=False)
-        scheduler.step()
+        train_m = run_epoch(model, train_loader, optimizer, device,
+                            train=True, accum_steps=args.accum_steps)
+        val_m = run_epoch(model, val_loader, optimizer, device,
+                          train=False, accum_steps=1)
 
         row = {
             'epoch':      epoch,
@@ -300,7 +298,9 @@ def parse_args():
 
     # ── Training settings ─────────────────────────────────────────────────
     p.add_argument('--epochs',      type=int,   default=50)
-    p.add_argument('--batch_size',  type=int,   default=16)
+    p.add_argument('--batch_size',  type=int,   default=8)
+    p.add_argument('--accum_steps', type=int, default=2,
+                   help='Gradient accumulation steps (effective batch = batch_size * accum_steps)')
     p.add_argument('--patience',    type=int,   default=10,
                    help='Early stopping patience (epochs)')
     p.add_argument('--num_workers', type=int,   default=2)
