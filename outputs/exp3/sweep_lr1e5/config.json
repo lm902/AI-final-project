@@ -1,0 +1,14 @@
+{
+  "data_root": "data/",
+  "splits_dir": "splits/",
+  "output_dir": "outputs/exp3/sweep_lr1e5",
+  "lr": 1e-05,
+  "acd1k_w": 8.0,
+  "weight_decay": 0.0001,
+  "epochs": 20,
+  "batch_size": 8,
+  "accum_steps": 2,
+  "patience": 10,
+  "num_workers": 2,
+  "seed": 42
+}
