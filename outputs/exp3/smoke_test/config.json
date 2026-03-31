@@ -1,0 +1,14 @@
+{
+  "data_root": "data/",
+  "splits_dir": "splits/",
+  "output_dir": "outputs/exp3/smoke_test",
+  "lr": 0.0001,
+  "acd1k_w": 8.0,
+  "weight_decay": 0.0001,
+  "epochs": 1,
+  "batch_size": 8,
+  "accum_steps": 2,
+  "patience": 10,
+  "num_workers": 2,
+  "seed": 42
+}
